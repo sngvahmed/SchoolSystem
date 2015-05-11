@@ -42,39 +42,64 @@ namespace ERP
 
         static void InboxOperationFull() {
             Inbox.Inbox inbox = new Inbox.Inbox();
+            // date is already create with the date of today 
+            // Inbox.InboxDomain inboxDomain = new Inbox.InboxDomain("to@live.com", "from@gmail.com", "test", "test" , new DateTime()); // this work but i make it auto create with date of today
             Inbox.InboxDomain inboxDomain = new Inbox.InboxDomain("to@live.com" , "from@gmail.com" , "test" , "test");
-            inbox.insert(inboxDomain);
-            Console.WriteLine("******************* Done ADD *******************");
+            if(inbox.insert(inboxDomain))
+                Console.WriteLine("******************* Done ADD *******************");
+            inboxDomain = null;
             inboxDomain = inbox.getInbox("to@live.com", "from@gmail.com");
-            Console.WriteLine("******************* Done Get *******************");
-            inbox.delete("to@live.com" , "from@gmail.com");
-            Console.WriteLine("******************* Done delete *******************");
+            if(inboxDomain != null)
+                Console.WriteLine("******************* Done Get *******************");
+            if(inbox.delete("to@live.com" , "from@gmail.com"))
+                Console.WriteLine("******************* Done delete *******************");
 
         }
 
         static void sessionOperationFull() {
             Session.Session session = new Session.Session();
-            //Session.SessionDomain sessionDomain = new Session.SessionDomain("test2", "descrition", 1, 0, 0);
-            //if (session.saveSession(sessionDomain)) {
-            //    Console.WriteLine("done saving");
-            //}
-
-            Session.SessionDomain sessionDomain = session.getSession("test2");
-            if (sessionDomain == null){
-                Console.WriteLine("null");
-            } else {
-                //sessionDomain.printDate();
-                sessionDomain.description = "change desc";
-                if (session.updateSession(sessionDomain)) {
-                    Console.WriteLine("******************* Done update *******************");
-                }
+            // date is already create with the date of today but make it auto create with today date
+            //Session.SessionDomain sessionDomain = new Session.SessionDomain("test2", "descrition", 1, 0, 0 , new DateTime());
+            Session.SessionDomain sessionDomain = new Session.SessionDomain("test2", "descrition", 1, 0, 0);
+            if (session.insertSession(sessionDomain)) {
+                Console.WriteLine("done saving");
             }
+
+            sessionDomain = session.getSession("test2");
+
+            if (sessionDomain != null){
+                sessionDomain.printDate();
+            }
+
+            sessionDomain.description = "change desc";
+            if (session.updateSession(sessionDomain)) {
+                Console.WriteLine("******************* Done update *******************");
+            }
+            
+        }
+
+        static private void courseOperationFullStack(){
+            Course.Course course = new Course.Course();
+            
+            Course.CourseDomain c1 = new Course.CourseDomain("OOP");
+            Course.CourseDomain c2 = new Course.CourseDomain("ASP");
+
+            if (course.insert(c1) && course.insert(c2)) {
+                Console.WriteLine("******************* Done insert *******************");
+            }
+            Course.CourseDomain courseDomain = course.get("OOP");
+            courseDomain.coursename = "C++";
+            if (course.update(courseDomain)) {
+                Console.WriteLine("******************* Done insert *******************");
+            }
+            
         }
 
         static void Main(string[] args){
             // UserOperationFullStack();  
             // InboxOperationFull();    
-            sessionOperationFull();
+            // sessionOperationFull();
+            courseOperationFullStack();
             Console.ReadKey();
         }
     }

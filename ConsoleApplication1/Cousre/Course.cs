@@ -7,12 +7,16 @@ using System.Threading.Tasks;
 
 // developed by nasser
 
-namespace ERP.Cousre
+namespace ERP.Course
 {
     interface CourseInterface
     {
         bool insert(string coursename);
+        bool insert(CourseDomain courseDomain);
         bool update(string coursenewName , int id);
+        bool update(CourseDomain courseDomain);
+        CourseDomain get(string course);
+        CourseDomain get(int id);
     }
 
     class CourseDomain
@@ -22,6 +26,12 @@ namespace ERP.Cousre
         public CourseDomain(string coursename){
             this.coursename = coursename;
         }
+        public CourseDomain(string coursename , int id)
+        {
+            this.coursename = coursename;
+            this.id = id;
+        }
+
     }
 
     class Course : CourseInterface
@@ -35,6 +45,32 @@ namespace ERP.Cousre
         {
             sqlConnection = new SqlConnection("Server=.\\SQLEXPRESS;Database=ERP;Integrated Security=true");
             courseQuery = new CourseQuery();
+        }
+
+        public bool insert(CourseDomain courseDomain) {
+            bool check = false;
+            sqlConnection.Open();
+            string query = courseQuery.insertQuery(courseDomain.coursename);
+            sqlCommand = new SqlCommand(query, sqlConnection);
+            try
+            {
+                sqlCommand.ExecuteNonQuery();
+                check = true;
+            }
+            catch (InvalidCastException invalid)
+            {
+                Console.WriteLine(invalid.Message);
+            }
+            catch (SqlException sql)
+            {
+                Console.WriteLine(sql.Message);
+            }
+            catch (InvalidOperationException invalid)
+            {
+                Console.WriteLine(invalid.Message);
+            }
+            sqlConnection.Close();
+            return check;
         }
 
         public bool insert(string coursename) {
@@ -56,11 +92,35 @@ namespace ERP.Cousre
             return check;
         }
 
+        public bool update(CourseDomain courseDomain) {
+            bool ret = false;
+            sqlConnection.Open();
+            string query = courseQuery.updateQuery(courseDomain.coursename, courseDomain.id);
+            sqlCommand = new SqlCommand(query, sqlConnection);
+            try
+            {
+                sqlCommand.ExecuteNonQuery();
+                ret = true;
+            }
+            catch (InvalidCastException invalid)
+            {
+                Console.WriteLine(invalid.Message);
+            }
+            catch (SqlException sql)
+            {
+                Console.WriteLine(sql.Message);
+            }
+            catch (InvalidOperationException invalid)
+            {
+                Console.WriteLine(invalid.Message);
+            }
+            sqlConnection.Close();
+            return ret;
+        }
         public bool update(string coursenewName , int id) {
             bool ret = false;
             sqlConnection.Open();
             string query = courseQuery.updateQuery(coursenewName , id);
-            Console.WriteLine(query);
             sqlCommand = new SqlCommand(query, sqlConnection);
             try
             {
@@ -83,6 +143,73 @@ namespace ERP.Cousre
             return ret;
         }
 
+        public CourseDomain get(string course)
+        {
+            CourseDomain courseDomain = null;
+            sqlConnection.Open();
+            sqlCommand = new SqlCommand(courseQuery.getCourseByname(course), sqlConnection);
+            try
+            {
+                sqlDataReader = sqlCommand.ExecuteReader();
+
+                while (sqlDataReader.Read())
+                {
+                    int id = sqlDataReader.GetInt32(0);
+                    string name = sqlDataReader.GetString(1);
+                    courseDomain = new CourseDomain(name , id);
+                }
+                sqlDataReader.Close();
+
+            }
+            catch (InvalidCastException invalid)
+            {
+                Console.WriteLine(invalid.Message);
+            }
+            catch (SqlException sql)
+            {
+                Console.WriteLine(sql.Message);
+            }
+            catch (InvalidOperationException invalid)
+            {
+                Console.WriteLine(invalid.Message);
+            }
+            sqlConnection.Close();
+            return courseDomain; 
+        }
+
+        public CourseDomain get(int id)
+        {
+            CourseDomain courseDomain = null;
+            sqlConnection.Open();
+            sqlCommand = new SqlCommand(courseQuery.getCourseByid(id), sqlConnection);
+            try
+            {
+                sqlDataReader = sqlCommand.ExecuteReader();
+
+                while (sqlDataReader.Read())
+                {
+                    id = sqlDataReader.GetInt32(0);
+                    string name = sqlDataReader.GetString(1);
+                    courseDomain = new CourseDomain(name, id);
+                }
+                sqlDataReader.Close();
+
+            }
+            catch (InvalidCastException invalid)
+            {
+                Console.WriteLine(invalid.Message);
+            }
+            catch (SqlException sql)
+            {
+                Console.WriteLine(sql.Message);
+            }
+            catch (InvalidOperationException invalid)
+            {
+                Console.WriteLine(invalid.Message);
+            }
+            sqlConnection.Close();
+            return courseDomain; 
+        }
     }
 
     class CourseQuery{
@@ -97,6 +224,11 @@ namespace ERP.Cousre
 
         public string getCourseByname(string name) { 
             return "SELECT [ID] ,[Name] FROM [dbo].[Course] WHERE Name = '" + name + "'";
+        }
+        
+        public string getCourseByid(int name)
+        {
+            return "SELECT [ID] ,[Name] FROM [dbo].[Course] WHERE id = '" + name + "'";
         }
     }
 }

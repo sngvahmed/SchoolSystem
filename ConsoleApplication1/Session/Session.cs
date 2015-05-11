@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace ERP.Session
 {
     interface SessionInterface {
-        bool saveSession(SessionDomain sessionDomain);
+        bool insertSession(SessionDomain sessionDomain);
         bool updateSession(SessionDomain sessionDomain);
         SessionDomain getSession(string title);
     }
@@ -63,7 +63,7 @@ namespace ERP.Session
 
         }
 
-        public bool saveSession(SessionDomain sessionDomain) {
+        public bool insertSession(SessionDomain sessionDomain) {
             bool check = false;
             sqlConnection.Open();
             sqlCommand = new SqlCommand(sessionQuery.saveSessionQuery(sessionDomain), sqlConnection);
@@ -85,7 +85,6 @@ namespace ERP.Session
             bool ret = false;
             sqlConnection.Open();
             string query = sessionQuery.updateSessionQuery(sessionDomain) ;
-            Console.WriteLine(query);
             sqlCommand = new SqlCommand(query , sqlConnection);
             try {
                 sqlCommand.ExecuteNonQuery();
@@ -111,7 +110,6 @@ namespace ERP.Session
                 sqlDataReader = sqlCommand.ExecuteReader();
                 while (sqlDataReader.Read())
                 {
-                    Console.WriteLine("accept");
                     sessionDomain = new SessionDomain(title, sqlDataReader.GetString(0),
                                                 sqlDataReader.GetInt32(1), sqlDataReader.GetInt32(2),
                                                 sqlDataReader.GetInt32(3), sqlDataReader.GetDateTime(4));
